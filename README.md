@@ -15,6 +15,23 @@ Install the Git-Kit CLI using `uv`:
 uv tool install git+https://github.com/Nom-nom-hub/git-kit.git
 ```
 
+## Getting Started ⚡
+
+Once installed, you can initialize any repository with the Git-Kit methodology:
+
+### 1. Initialize a Repo
+Navigate to your project root and run:
+```bash
+git-kit init
+```
+This will set up the necessary directory structure and templates in your `.github` folder.
+
+### 2. Check Project Status
+Get an overview of your active PR plans, releases, and design documents:
+```bash
+git-kit status
+```
+
 ## The Templates
 
 ### 1. `repo-charter.md` (The Constitution)
