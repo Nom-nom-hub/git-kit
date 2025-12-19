@@ -6,12 +6,11 @@ on:
       - 'v*'
 
 jobs:
-  pypi-publish:
-    name: Publish to PyPI
+  create-release:
+    name: Create GitHub Release
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -46,11 +45,6 @@ jobs:
         # Need zip tool
         sudo apt-get update && sudo apt-get install -y zip
         .github/workflows/scripts/create-release-packages.sh ${{ steps.get_version.outputs.new_version }}
-
-    - name: Publish to PyPI
-      if: steps.check_release.outputs.exists == 'false'
-      run: echo "Simulating publish to PyPI"
-
 
     - name: Create GitHub Release
       if: steps.check_release.outputs.exists == 'false'

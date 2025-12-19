@@ -7,6 +7,14 @@ Git-Kit is a set of **Markdown Templates** designed to drive your GitHub workflo
 ## Philosophy
 Don't just write code; **plan your contributions**. Use these templates to guide AI Agents (and humans) through the PR and Workflow lifecycle.
 
+## Installation 🚀
+
+Install the Git-Kit CLI using `uv`:
+
+```bash
+uv tool install git+https://github.com/git-boss/git-kit.git
+```
+
 ## The Templates
 
 ### 1. `repo-charter.md` (The Constitution)
