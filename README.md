@@ -66,18 +66,18 @@ git-kit status
 
 ## The Commands (For Agents)
 
-Instruct your AI Agent with these slash commands:
+Instruct your AI Agent with these slash commands. Each command is now defined as an individual file in your agent's commands directory.
 
-| Command | File Created |
-| :--- | :--- |
-| **`/gitkit.charter`** | `.github/CHARTER.md` |
-| **`/gitkit.design`** | `.github/designs/feature.md` |
-| **`/gitkit.pr`** | `.github/pr-plans/branch.md` |
-| **`/gitkit.release`** | `.github/releases/vX.Y.Z.md` |
-| **`/gitkit.workflow`** | `.github/workflows/designs/action.md` |
-| **`/gitkit.notes`** | `.github/releases/notes.md` |
-| **`/gitkit.retro`** | `.github/retros/date.md` |
+| Command | Script Executed | Template Used |
+| :--- | :--- | :--- |
+| **`/gitkit.charter`** | `create-charter.sh` | `.github/templates/charter.md` |
+| **`/gitkit.design`** | `create-design.sh` | `.github/templates/design.md` |
+| **`/gitkit.pr`** | `create-pr.sh` | `.github/templates/pr.md` |
+| **`/gitkit.release`** | `create-release.sh` | `.github/templates/release.md` |
+| **`/gitkit.workflow`** | `create-workflow.sh` | `.github/templates/workflow.md` |
+| **`/gitkit.notes`** | `create-notes.sh` | `.github/templates/notes.md` |
+| **`/gitkit.retro`** | `create-retro.sh` | `.github/templates/retro.md` |
 
-For setup instructions, see [Agent Integration](./AGENTS.md).
+For detailed agent setup and command file locations, see [Supported Agents](./AGENTS.md).
 
 

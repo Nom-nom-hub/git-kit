@@ -10,7 +10,7 @@ Check-Root
 
 $Slug = $Title.ToLower() -replace '[^a-z0-9]', '-'
 $Filename = ".github\designs\$Slug.md"
-$Template = ".github\design-doc.md"
+$Template = ".github\templates\design.md"
 
 if (-not (Test-Path $Template)) {
     Log-Error "Template $Template not found. Run 'git-kit init'."

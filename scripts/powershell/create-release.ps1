@@ -9,7 +9,7 @@ $ScriptDir = Split-Path $MyInvocation.MyCommand.Path
 Check-Root
 
 $Filename = ".github\releases\$Version.md"
-$Template = ".github\release-plan.md"
+$Template = ".github\templates\release.md"
 
 if (Test-Path $Filename) {
     Log-Warn "Plan $Filename already exists."

@@ -10,7 +10,7 @@ Check-Root
 
 $Slug = $Name.ToLower() -replace '[^a-z0-9]', '-'
 $Filename = ".github\pr-plans\$Slug.md"
-$Template = ".github\pr-template.md"
+$Template = ".github\templates\pr.md"
 
 if (-not (Test-Path $Template)) {
     Log-Warn "Template not found at $Template. Using default."

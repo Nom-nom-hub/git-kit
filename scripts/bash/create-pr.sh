@@ -12,7 +12,7 @@ check_root
 
 SLUG=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
 FILENAME=".github/pr-plans/${SLUG}.md"
-TEMPLATE=".github/pr-template.md"
+TEMPLATE=".github/templates/pr.md"
 
 if [ ! -f "$TEMPLATE" ]; then
     log_warn "Template not found at $TEMPLATE. Using default."

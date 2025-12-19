@@ -26,14 +26,22 @@ Git-Kit supports a wide range of AI agents and IDEs. When you run `git-kit init`
 
 ## Configuration Formats
 
+### Split Commands (Individual Files)
+Instead of a single large configuration file, Git-Kit now provides **individual command files** in your agent's commands directory (e.g., `.claude/commands/pr.md`, `.qwen/commands/design.toml`). 
+
+This allows agents to index and reference each methodology tool independently, significantly improving reliability and discovery.
+
 ### Markdown (`.md`)
-Agents that support Markdown typically look for a `gitkit.md` (or similar) file containing slash command definitions and methodology instructions.
+Agents that support Markdown receive a set of `.md` files, each defining a slash command and its corresponding shell script invocation.
 
 ### TOML (`.toml`)
-Agents like **Gemini** and **Qwen** use TOML for structured command definitions. Git-Kit automatically generates a `gitkit.toml` with the correct syntax for these agents.
+Agents like **Gemini** and **Qwen** use TOML for structured command definitions. Git-Kit automatically generates individual `.toml` command files for these agents.
+
+## Organized Templates
+All methodology templates are now stored in `.github/templates/`. The CLI and scripts use these as a source of truth when creating your plans and designs.
 
 ## Initialization
 To set up an agent:
 1.  Run `git-kit init .`
 2.  Select your agent from the interactive prompt.
-3.  The CLI will install the specific `gitkit.md` or `gitkit.toml` in the directory listed above.
+3.  The CLI will install the specific commands in the directory listed above.

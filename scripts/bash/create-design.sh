@@ -12,7 +12,7 @@ check_root
 
 SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
 FILENAME=".github/designs/${SLUG}.md"
-TEMPLATE=".github/design-doc.md"
+TEMPLATE=".github/templates/design.md"
 
 if [ ! -f "$TEMPLATE" ]; then
     log_error "Template $TEMPLATE not found. Run 'git-kit init'."

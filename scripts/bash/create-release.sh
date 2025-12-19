@@ -11,7 +11,7 @@ fi
 check_root
 
 FILENAME=".github/releases/${VERSION}.md"
-TEMPLATE=".github/release-plan.md"
+TEMPLATE=".github/templates/release.md"
 
 if [ -f "$FILENAME" ]; then
     log_warn "Plan $FILENAME already exists."

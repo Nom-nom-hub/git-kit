@@ -29,21 +29,26 @@ for AGENT in "${AGENTS[@]}"; do
         PKG_DIR="${DIST_DIR}/${PKG_NAME}"
         mkdir -p "$PKG_DIR/git-kit/"
         
-        # 1. Copy Templates into .github
-        mkdir -p "$PKG_DIR/git-kit/.github"
-        cp -r "$TEMPLATES_DIR"/* "$PKG_DIR/git-kit/.github/"
+        # 1. Copy Templates into .github/templates
+        mkdir -p "$PKG_DIR/git-kit/.github/templates"
+        cp -r "$TEMPLATES_DIR"/*.md "$PKG_DIR/git-kit/.github/templates/"
         
         # 2. Copy Scripts into .github/scripts (Select variant)
         SCRIPTS_DEST="$PKG_DIR/git-kit/.github/scripts"
         mkdir -p "$SCRIPTS_DEST"
         if [ "$VARIANT" == "sh" ]; then
             cp -r "${SCRIPTS_DIR}/bash" "$SCRIPTS_DEST/"
+            SCRIPT_EXT="sh"
+            SHELL_CMD="bash"
+            SCRIPT_PATH_PREFIX=".github/scripts/bash"
         else
             cp -r "${SCRIPTS_DIR}/powershell" "$SCRIPTS_DEST/"
+            SCRIPT_EXT="ps1"
+            SHELL_CMD="powershell -File"
+            SCRIPT_PATH_PREFIX=".github/scripts/powershell"
         fi
         
-        # 3. Create Agent Configuration
-        # Defaults
+        # 3. Create Agent Configuration (Split Commands)
         AGENT_DIR=""
         AGENT_FORMAT="md"
         
@@ -70,20 +75,42 @@ for AGENT in "${AGENTS[@]}"; do
         FULL_AGENT_DIR="${PKG_DIR}/${AGENT_DIR}"
         mkdir -p "$FULL_AGENT_DIR"
         
-        if [ "$AGENT_FORMAT" == "toml" ]; then
-            AGENT_TEMPLATE="$TEMPLATES_DIR/agent-file-template.toml"
-            AGENT_FILE="${FULL_AGENT_DIR}/gitkit.toml"
-        else
-            AGENT_TEMPLATE="$TEMPLATES_DIR/agent-file-template.md"
-            AGENT_FILE="${FULL_AGENT_DIR}/gitkit.md"
-        fi
+        # Defined commands
+        CMDS=("charter" "design" "pr" "workflow" "release" "notes" "retro")
+        DESCS=(
+            "Initialize or update the project charter"
+            "Create a new design document"
+            "Plan a new Pull Request"
+            "Plan a new methodology workflow"
+            "Plan a new release"
+            "Create release notes"
+            "Create a retrospective"
+        )
         
-        cp "$AGENT_TEMPLATE" "$AGENT_FILE"
-        # Mac/Linux compatible sed
-        sed -i "s/\[AGENT_NAME\]/${AGENT^^}/g" "$AGENT_FILE" 2>/dev/null || sed -i "" "s/\[AGENT_NAME\]/${AGENT^^}/g" "$AGENT_FILE"
+        for i in "${!CMDS[@]}"; do
+            CMD="${CMDS[$i]}"
+            DESC="${DESCS[$i]}"
+            
+            if [ "$AGENT_FORMAT" == "toml" ]; then
+                FILE="${FULL_AGENT_DIR}/${CMD}.toml"
+                cat > "$FILE" <<EOF
+[git-kit.${CMD}]
+description = "${DESC}"
+command = "${SHELL_CMD} ${SCRIPT_PATH_PREFIX}/create-${CMD}.${SCRIPT_EXT}"
+EOF
+            else
+                FILE="${FULL_AGENT_DIR}/${CMD}.md"
+                cat > "$FILE" <<EOF
+# ${AGENT^^} Command: ${CMD}
+${DESC}
+
+Command: \`${SHELL_CMD} ${SCRIPT_PATH_PREFIX}/create-${CMD}.${SCRIPT_EXT}\`
+EOF
+            fi
+        done
         
         # 4. Zip it
-        (cd "$DIST_DIR" && zip -r "${PKG_NAME}.zip" "${PKG_NAME}/")
+        (cd "$DIST_DIR" && zip -r "${PKG_NAME}.zip" "${PKG_NAME}/" > /dev/null)
         
         # Cleanup temp dir
         rm -rf "$PKG_DIR"

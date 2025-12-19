@@ -126,17 +126,22 @@ def main(
              TEMPLATE_DEV_ROOT = Path(__file__).parent / "templates"
 
         # Install Templates
+        template_dir = github_dir / "templates"
+        template_dir.mkdir(parents=True, exist_ok=True)
         (github_dir / "pr-plans").mkdir(parents=True, exist_ok=True)
         (github_dir / "releases").mkdir(parents=True, exist_ok=True)
         (github_dir / "designs").mkdir(parents=True, exist_ok=True)
+        (github_dir / "retros").mkdir(parents=True, exist_ok=True)
+        (github_dir / "workflows" / "designs").mkdir(parents=True, exist_ok=True)
 
         templates_to_install = {
-            "pr-template.md": github_dir / "pr-template.md",
-            "release-plan.md": github_dir / "release-plan.md",
-            "release-notes.md": github_dir / "release-notes.md",
-            "design-doc.md": github_dir / "design-doc.md",
-            "repo-charter.md": github_dir / "CHARTER.md",
-            "workflow-design.md": github_dir / "workflow-design.md"
+            "pr.md": template_dir / "pr.md",
+            "release.md": template_dir / "release.md",
+            "notes.md": template_dir / "notes.md",
+            "design.md": template_dir / "design.md",
+            "charter.md": template_dir / "charter.md",
+            "workflow.md": template_dir / "workflow.md",
+            "retro.md": template_dir / "retro.md"
         }
 
         for src_name, dest in templates_to_install.items():
@@ -172,18 +177,31 @@ def main(
         config = agent_mapping.get(agent, { "dir": f".{agent}/commands", "format": "md" })
         agent_dir = path / config["dir"]
         agent_format = config["format"]
-        agent_file_name = f"gitkit.{agent_format}"
-        agent_file_dest = agent_dir / agent_file_name
+        
+        cmd_info = [
+            ("charter", "Initialize or update the project charter"),
+            ("design", "Create a new design document"),
+            ("pr", "Plan a new Pull Request"),
+            ("workflow", "Plan a new methodology workflow"),
+            ("release", "Plan a new release"),
+            ("notes", "Create release notes"),
+            ("retro", "Create a retrospective")
+        ]
 
-        agent_template_name = f"agent-file-template.{agent_format}"
-        agent_template = TEMPLATE_DEV_ROOT / agent_template_name
-        if not agent_template.exists():
-             agent_template = path / "git-kit" / "templates" / agent_template_name
-             
-        if agent_template.exists() and not agent_file_dest.exists():
-            agent_dir.mkdir(parents=True, exist_ok=True)
-            content = agent_template.read_text(encoding="utf-8")
-            content = content.replace("[AGENT_NAME]", agent.upper())
+        script_path_prefix = f".github/scripts/{'bash' if script == 'sh' else 'powershell'}"
+        script_ext = "sh" if script == "sh" else "ps1"
+        shell_cmd = "bash" if script == "sh" else "powershell -File"
+
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        for cmd_name, desc in cmd_info:
+            file_name = f"{cmd_name}.{agent_format}"
+            agent_file_dest = agent_dir / file_name
+            
+            if agent_format == "toml":
+                content = f'[git-kit.{cmd_name}]\ndescription = "{desc}"\ncommand = "{shell_cmd} {script_path_prefix}/create-{cmd_name}.{script_ext}"\n'
+            else:
+                content = f'# {agent.upper()} Command: {cmd_name}\n{desc}\n\nCommand: `{shell_cmd} {script_path_prefix}/create-{cmd_name}.{script_ext}`\n'
+            
             agent_file_dest.write_text(content, encoding="utf-8")
             console.print(f"  [green]✓[/green] Created {agent_file_dest}")
             
