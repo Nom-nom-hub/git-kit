@@ -29,15 +29,17 @@ for AGENT in "${AGENTS[@]}"; do
         PKG_DIR="${DIST_DIR}/${PKG_NAME}"
         mkdir -p "$PKG_DIR/git-kit/"
         
-        # 1. Copy Templates
-        cp -r "$TEMPLATES_DIR" "$PKG_DIR/git-kit/"
+        # 1. Copy Templates into .github
+        mkdir -p "$PKG_DIR/git-kit/.github"
+        cp -r "$TEMPLATES_DIR"/* "$PKG_DIR/git-kit/.github/"
         
-        # 2. Copy Scripts (Select variant)
-        mkdir -p "$PKG_DIR/git-kit/scripts"
+        # 2. Copy Scripts into .github/scripts (Select variant)
+        SCRIPTS_DEST="$PKG_DIR/git-kit/.github/scripts"
+        mkdir -p "$SCRIPTS_DEST"
         if [ "$VARIANT" == "sh" ]; then
-            cp -r "${SCRIPTS_DIR}/bash" "$PKG_DIR/git-kit/scripts/"
+            cp -r "${SCRIPTS_DIR}/bash" "$SCRIPTS_DEST/"
         else
-            cp -r "${SCRIPTS_DIR}/powershell" "$PKG_DIR/git-kit/scripts/"
+            cp -r "${SCRIPTS_DIR}/powershell" "$SCRIPTS_DEST/"
         fi
         
         # 3. Create Agent Instruction File
