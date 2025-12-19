@@ -22,9 +22,9 @@ Once installed, you can initialize any repository with the Git-Kit methodology:
 ### 1. Initialize a Repo
 Navigate to your project root and run:
 ```bash
-git-kit init
+git-kit init .
 ```
-This will set up the necessary directory structure and templates in your `.github` folder.
+This will set up the necessary directory structure and templates in your `.github` folder. You can also specify a path if you are not in the project root (e.g., `git-kit init path/to/repo`).
 
 ### 2. Check Project Status
 Get an overview of your active PR plans, releases, and design documents:
