@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  pypi-publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Get Version
+      id: get_version
+      run: |
+        chmod +x .github/workflows/scripts/get-version.sh
+        .github/workflows/scripts/get-version.sh
+
+    - name: Check Release
+      id: check_release
+      run: |
+        chmod +x .github/workflows/scripts/check-release-exists.sh
+        .github/workflows/scripts/check-release-exists.sh ${{ steps.get_version.outputs.new_version }}
+
+    - name: Build Package
+      if: steps.check_release.outputs.exists == 'false'
+      run: |
+        chmod +x .github/workflows/scripts/build.sh
+        .github/workflows/scripts/build.sh
+
+    - name: Create Agent Packages
+      if: steps.check_release.outputs.exists == 'false'
+      run: |
+        chmod +x .github/workflows/scripts/create-release-packages.sh
+        # Need zip tool
+        sudo apt-get update && sudo apt-get install -y zip
+        .github/workflows/scripts/create-release-packages.sh ${{ steps.get_version.outputs.new_version }}
+
+    - name: Publish to PyPI
+      if: steps.check_release.outputs.exists == 'false'
+      run: echo "Simulating publish to PyPI"
+
+
+    - name: Create GitHub Release
+      if: steps.check_release.outputs.exists == 'false'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        chmod +x .github/workflows/scripts/create-gh-release.sh
+        .github/workflows/scripts/create-gh-release.sh ${{ steps.get_version.outputs.new_version }}
+

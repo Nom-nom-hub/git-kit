@@ -1,0 +1,31 @@
+[project]
+name = "git-kit"
+version = "0.1.0"
+description = "Git-Kit: Your GitHub Boss. The CLI for the Git-Kit Methodology."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "User", email = "user@example.com"}
+]
+dependencies = [
+    "typer[all]",
+    "rich",
+    "python-dotenv",
+    "Jinja2",
+    "httpx",
+]
+
+
+[project.scripts]
+git-kit = "gitkit_cli.main:app"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+gitkit_cli = ["templates/*.md"]
