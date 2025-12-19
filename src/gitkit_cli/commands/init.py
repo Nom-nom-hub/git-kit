@@ -118,7 +118,7 @@ def main(
         
         # FALLBACK: Local Bundle Logic
         github_dir = path / ".github"
-        github_dir.mkdir(exist_ok=True)
+        github_dir.mkdir(parents=True, exist_ok=True)
         
         # Path Finding (Dev vs Installed)
         TEMPLATE_DEV_ROOT = Path(__file__).parent.parent.parent.parent / "templates"
@@ -126,9 +126,9 @@ def main(
              TEMPLATE_DEV_ROOT = Path(__file__).parent / "templates"
 
         # Install Templates
-        (github_dir / "pr-plans").mkdir(exist_ok=True)
-        (github_dir / "releases").mkdir(exist_ok=True)
-        (github_dir / "designs").mkdir(exist_ok=True)
+        (github_dir / "pr-plans").mkdir(parents=True, exist_ok=True)
+        (github_dir / "releases").mkdir(parents=True, exist_ok=True)
+        (github_dir / "designs").mkdir(parents=True, exist_ok=True)
 
         templates_to_install = {
             "pr-template.md": github_dir / "pr-template.md",
@@ -189,7 +189,7 @@ def main(
             
         # Install Scripts
         scripts_dir = github_dir / "scripts"
-        scripts_dir.mkdir(exist_ok=True)
+        scripts_dir.mkdir(parents=True, exist_ok=True)
         
         script_src_name = "bash" if script == "sh" else "powershell"
         script_ext = "*.sh" if script == "sh" else "*.ps1"
@@ -199,7 +199,7 @@ def main(
             script_src = path / "git-kit" / "scripts" / script_src_name
             
         target_script_dir = scripts_dir / script_src_name
-        target_script_dir.mkdir(exist_ok=True)
+        target_script_dir.mkdir(parents=True, exist_ok=True)
         
         if script_src.exists():
             for s in script_src.glob(script_ext):
