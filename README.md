@@ -12,7 +12,7 @@ Don't just write code; **plan your contributions**. Use these templates to guide
 Install the Git-Kit CLI using `uv`:
 
 ```bash
-uv tool install git+https://github.com/git-boss/git-kit.git
+uv tool install git+https://github.com/Nom-nom-hub/git-kit.git
 ```
 
 ## The Templates
