@@ -192,18 +192,33 @@ def main(
         script_ext = "sh" if script == "sh" else "ps1"
         shell_cmd = "bash" if script == "sh" else "powershell -File"
 
+        # Install Agent Commands (Rich Templates)
         agent_dir.mkdir(parents=True, exist_ok=True)
+        command_src_dir = TEMPLATE_DEV_ROOT / "commands"
+        if not command_src_dir.exists():
+             command_src_dir = Path.cwd() / "git-kit" / "templates" / "commands"
+
         for cmd_name, desc in cmd_info:
             file_name = f"{cmd_name}.{agent_format}"
             agent_file_dest = agent_dir / file_name
             
-            if agent_format == "toml":
-                content = f'[git-kit.{cmd_name}]\ndescription = "{desc}"\ncommand = "{shell_cmd} {script_path_prefix}/create-{cmd_name}.{script_ext}"\n'
+            src_template = command_src_dir / f"{cmd_name}.md"
+            if src_template.exists():
+                content = src_template.read_text(encoding="utf-8")
+                # Personalize or adapt based on shell if needed, 
+                # but these templates are currently generic bash/ps.
+                agent_file_dest.write_text(content, encoding="utf-8")
             else:
-                content = f'# {agent.upper()} Command: {cmd_name}\n{desc}\n\nCommand: `{shell_cmd} {script_path_prefix}/create-{cmd_name}.{script_ext}`\n'
+                # Fallback to simple generation if template missing
+                if agent_format == "toml":
+                    content = f'[git-kit.{cmd_name}]\ndescription = "{desc}"\ncommand = "{shell_cmd} {script_path_prefix}/create-{cmd_name}.{script_ext}"\n'
+                else:
+                    content = f'# {agent.upper()} Command: {cmd_name}\n{desc}\n\nCommand: `{shell_cmd} {script_path_prefix}/create-{cmd_name}.{script_ext}`\n'
+                
+                agent_file_dest.write_text(content, encoding="utf-8")
             
-            agent_file_dest.write_text(content, encoding="utf-8")
             console.print(f"  [green]✓[/green] Created {agent_file_dest}")
+
             
         # Install Scripts
         scripts_dir = github_dir / "scripts"
