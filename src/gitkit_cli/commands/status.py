@@ -7,10 +7,12 @@ app = typer.Typer()
 console = Console()
 
 @app.command()
-def main():
+def main(
+    path: Path = typer.Argument(".", help="Project root to check status of")
+):
     """Show the status of your Git-Kit project (Plans, Releases, Designs)."""
     
-    github_dir = Path(".github")
+    github_dir = path / ".github"
     if not github_dir.exists():
         console.print("[yellow]No .github directory found. Run `git-kit init` first.[/yellow]")
         return

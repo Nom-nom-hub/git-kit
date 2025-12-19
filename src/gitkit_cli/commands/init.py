@@ -13,7 +13,7 @@ console = Console()
 
 TEMPLATE_REPO = "Nom-nom-hub/git-kit"
 
-def download_template(agent: str, script: str) -> bool:
+def download_template(agent: str, script: str, path: Path) -> bool:
     """Downloads the specific agent/script template from GitHub Releases."""
     try:
         console.print(f"[cyan]Fetching latest release for {agent} ({script})...[/cyan]")
@@ -52,13 +52,13 @@ def download_template(agent: str, script: str) -> bool:
         with zipfile.ZipFile(io.BytesIO(zip_resp.content)) as z:
             # The zip contains a folder `git-kit-template-.../git-kit/...`
             # We assume users want the CONTENTS of `git-kit/` in their root.
-            z.extractall(".")
+            z.extractall(path)
             
-            extracted_roots = [f for f in Path(".").iterdir() if f.is_dir() and "git-kit-template" in f.name]
+            extracted_roots = [f for f in path.iterdir() if f.is_dir() and "git-kit-template" in f.name]
             if extracted_roots:
                 src_root = extracted_roots[0] / "git-kit"
                 if src_root.exists():
-                     shutil.copytree(src_root, ".", dirs_exist_ok=True)
+                     shutil.copytree(src_root, path, dirs_exist_ok=True)
                      shutil.rmtree(extracted_roots[0])
         
         console.print(f"[green]Successfully initialized from release {version}![/green]")
@@ -70,12 +70,13 @@ def download_template(agent: str, script: str) -> bool:
 
 @app.command()
 def main(
+    path: Path = typer.Argument(".", help="Project root to initialize"),
     agent: str = typer.Option(None, "--agent", help="AI Assistant (claude, gemini, etc)"),
     script: str = typer.Option(None, "--script", help="Script type (sh, ps)"),
     local: bool = typer.Option(False, "--local", help="Force use of local templates (skip download)")
 ):
     """
-    Initialize Git-Kit in the current repository.
+    Initialize Git-Kit in the specified repository path.
     Downloads the appropriate templates for your Agent and Shell.
     """
     console.print("[bold blue]Git-Kit Initialization[/bold blue]")
@@ -99,14 +100,14 @@ def main(
     # 2. Download or Local Fallback
     success = False
     if not local:
-        success = download_template(agent, script)
+        success = download_template(agent, script, path)
     
     if not success:
         if not local:
             console.print("[yellow]Falling back to bundled templates...[/yellow]")
         
         # FALLBACK: Local Bundle Logic
-        github_dir = Path(".github")
+        github_dir = path / ".github"
         github_dir.mkdir(exist_ok=True)
         
         # Path Finding (Dev vs Installed)
@@ -131,14 +132,14 @@ def main(
         for src_name, dest in templates_to_install.items():
             src = TEMPLATE_DEV_ROOT / src_name
             if not src.exists():
-                src = Path.cwd() / "git-kit" / "templates" / src_name
+                src = path / "git-kit" / "templates" / src_name
             
             if not dest.exists() and src.exists():
                 shutil.copy2(src, dest)
                 console.print(f"  [green]✓[/green] Created {dest}")
 
         # Install Agent File
-        agent_file_dest = Path(f"{agent.upper()}.md")
+        agent_file_dest = path / f"{agent.upper()}.md"
         # Special naming
         if agent == "copilot":
              agent_file_dest = github_dir / "goal-kit-guide.md"
@@ -147,7 +148,7 @@ def main(
 
         agent_template = TEMPLATE_DEV_ROOT / "agent-file-template.md"
         if not agent_template.exists():
-             agent_template = Path.cwd() / "git-kit" / "templates" / "agent-file-template.md"
+             agent_template = path / "git-kit" / "templates" / "agent-file-template.md"
              
         if agent_template.exists() and not agent_file_dest.exists():
             content = agent_template.read_text(encoding="utf-8")
@@ -165,7 +166,7 @@ def main(
         
         script_src = TEMPLATE_DEV_ROOT.parent / "scripts" / script_src_name
         if not script_src.exists():
-            script_src = Path.cwd() / "git-kit" / "scripts" / script_src_name
+            script_src = path / "git-kit" / "scripts" / script_src_name
             
         target_script_dir = scripts_dir / script_src_name
         target_script_dir.mkdir(exist_ok=True)

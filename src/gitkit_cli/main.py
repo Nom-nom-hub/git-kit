@@ -10,8 +10,8 @@ app = typer.Typer(
 console = Console()
 
 # Register commands
-app.add_typer(init.app, name="init", help="Initialize Git-Kit in this repo")
-app.add_typer(status.app, name="status", help="Show project status")
+app.command(name="init", help="Initialize Git-Kit in this repo")(init.main)
+app.command(name="status", help="Show project status")(status.main)
 app.add_typer(pr.app, name="pr", help="Plan and manage Pull Requests")
 app.add_typer(release.app, name="release", help="Plan and manage Releases")
 
