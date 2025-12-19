@@ -15,8 +15,8 @@ VARIANTS=("sh" "ps")
 # Directory setup
 DIST_DIR="dist-release"
 mkdir -p "$DIST_DIR"
-TEMPLATES_DIR="../../../templates"
-SCRIPTS_DIR="../../../scripts"
+TEMPLATES_DIR="./templates"
+SCRIPTS_DIR="./scripts"
 
 
 echo "Creating release packages for $VERSION..."
