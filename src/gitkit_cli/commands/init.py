@@ -50,16 +50,26 @@ def download_template(agent: str, script: str, path: Path) -> bool:
         
         # 4. Extract
         with zipfile.ZipFile(io.BytesIO(zip_resp.content)) as z:
-            # The zip contains a folder `git-kit-template-.../git-kit/...`
-            # We assume users want the CONTENTS of `git-kit/` in their root.
+            # The zip contains a folder `git-kit-template-.../`
+            # Inside that is `git-kit/` and the `<AGENT>.md` file.
             z.extractall(path)
             
             extracted_roots = [f for f in path.iterdir() if f.is_dir() and "git-kit-template" in f.name]
             if extracted_roots:
-                src_root = extracted_roots[0] / "git-kit"
-                if src_root.exists():
-                     shutil.copytree(src_root, path, dirs_exist_ok=True)
-                     shutil.rmtree(extracted_roots[0])
+                root = extracted_roots[0]
+                # Move everything from root up to our target path
+                for item in root.iterdir():
+                    if item.name == "git-kit":
+                        # Move contents of git-kit/ up (includes .github etc)
+                        shutil.copytree(item, path, dirs_exist_ok=True)
+                    else:
+                        # Move agent-specific files (CLAUDE.md etc)
+                        dest = path / item.name
+                        if item.is_dir():
+                            shutil.copytree(item, dest, dirs_exist_ok=True)
+                        else:
+                            shutil.copy2(item, dest)
+                shutil.rmtree(root)
         
         console.print(f"[green]Successfully initialized from release {version}![/green]")
         return True
