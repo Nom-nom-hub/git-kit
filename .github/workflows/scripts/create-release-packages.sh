@@ -90,6 +90,7 @@ for AGENT in "${AGENTS[@]}"; do
         for i in "${!CMDS[@]}"; do
             CMD="${CMDS[$i]}"
             DESC="${DESCS[$i]}"
+            TEMPLATE_FILE="$TEMPLATES_DIR/commands/${CMD}.md"
             
             if [ "$AGENT_FORMAT" == "toml" ]; then
                 FILE="${FULL_AGENT_DIR}/${CMD}.toml"
@@ -100,12 +101,22 @@ command = "${SHELL_CMD} ${SCRIPT_PATH_PREFIX}/create-${CMD}.${SCRIPT_EXT}"
 EOF
             else
                 FILE="${FULL_AGENT_DIR}/${CMD}.md"
-                cat > "$FILE" <<EOF
+                if [ -f "$TEMPLATE_FILE" ]; then
+                    cp "$TEMPLATE_FILE" "$FILE"
+                    # Replace bash paths with powershell if needed
+                    if [ "$VARIANT" == "ps" ]; then
+                        sed -i "s/\.github\/scripts\/bash/.github\/scripts\/powershell/g" "$FILE" 2>/dev/null || sed -i "" "s/\.github\/scripts\/bash/.github\/scripts\/powershell/g" "$FILE"
+                        sed -i "s/\.sh/.ps1/g" "$FILE" 2>/dev/null || sed -i "" "s/\.sh/.ps1/g" "$FILE"
+                        sed -i "s/bash/powershell -File/g" "$FILE" 2>/dev/null || sed -i "" "s/bash/powershell -File/g" "$FILE"
+                    fi
+                else
+                    cat > "$FILE" <<EOF
 # ${AGENT^^} Command: ${CMD}
 ${DESC}
 
 Command: \`${SHELL_CMD} ${SCRIPT_PATH_PREFIX}/create-${CMD}.${SCRIPT_EXT}\`
 EOF
+                fi
             fi
         done
         

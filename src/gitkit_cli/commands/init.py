@@ -205,8 +205,12 @@ def main(
             src_template = command_src_dir / f"{cmd_name}.md"
             if src_template.exists():
                 content = src_template.read_text(encoding="utf-8")
-                # Personalize or adapt based on shell if needed, 
-                # but these templates are currently generic bash/ps.
+                # Adapt based on shell
+                if script == "ps":
+                    content = content.replace(".github/scripts/bash", ".github/scripts/powershell")
+                    content = content.replace(".sh", ".ps1")
+                    content = content.replace("bash", "powershell -File")
+                
                 agent_file_dest.write_text(content, encoding="utf-8")
             else:
                 # Fallback to simple generation if template missing
