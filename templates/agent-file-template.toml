@@ -1,0 +1,10 @@
+[git-kit.commands]
+charter = "bash .github/scripts/bash/create-charter.sh"
+design = "bash .github/scripts/bash/create-design.sh"
+pr = "bash .github/scripts/bash/create-pr.sh"
+release = "bash .github/scripts/bash/create-release.sh"
+
+[git-kit.methodology]
+plan_first = "Never write code or workflows without a plan. Use the pr or design commands."
+standards = "Adhere to the rules and standards defined in .github/CHARTER.md."
+review = "Always perform a retrospective after completing a release."

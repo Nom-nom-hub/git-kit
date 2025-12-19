@@ -9,7 +9,7 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 
-AGENTS=("claude" "gemini" "copilot" "cursor" "qwen" "windsurf" "opencode" "codex" "kilocode" "auggie" "codebuddy" "roo" "q")
+AGENTS=("claude" "gemini" "copilot" "cursor" "qwen" "opencode" "codex" "windsurf" "kilocode" "auggie" "roo" "codebuddy" "qoder" "q" "amp" "shai" "bob")
 VARIANTS=("sh" "ps")
 
 # Directory setup
@@ -42,21 +42,45 @@ for AGENT in "${AGENTS[@]}"; do
             cp -r "${SCRIPTS_DIR}/powershell" "$SCRIPTS_DEST/"
         fi
         
-        # 3. Create Agent Instruction File
-        # Customize the generic template
-        AGENT_FILE="${PKG_DIR}/${AGENT^^}.md" # Default: CLAUDE.md
+        # 3. Create Agent Configuration
+        # Defaults
+        AGENT_DIR=""
+        AGENT_FORMAT="md"
         
-        # Custom filenames
         case $AGENT in
-            "copilot") AGENT_FILE="${PKG_DIR}/.github/goal-kit-guide.md" ;; # Copilot often reads .github
-            "vscode")  AGENT_FILE="${PKG_DIR}/git-kit-instructions.md" ;;
-            *) ;;
+            "claude")    AGENT_DIR=".claude/commands" ;;
+            "gemini")    AGENT_DIR=".gemini/commands"; AGENT_FORMAT="toml" ;;
+            "copilot")   AGENT_DIR=".github/agents" ;;
+            "cursor")    AGENT_DIR=".cursor/commands" ;;
+            "qwen")      AGENT_DIR=".qwen/commands"; AGENT_FORMAT="toml" ;;
+            "opencode")  AGENT_DIR=".opencode/command" ;;
+            "codex")     AGENT_DIR=".codex/commands" ;;
+            "windsurf")  AGENT_DIR=".windsurf/workflows" ;;
+            "kilocode")  AGENT_DIR=".kilocode/rules" ;;
+            "auggie")    AGENT_DIR=".augment/rules" ;;
+            "roo")       AGENT_DIR=".roo/rules" ;;
+            "codebuddy") AGENT_DIR=".codebuddy/commands" ;;
+            "qoder")     AGENT_DIR=".qoder/commands" ;;
+            "q")         AGENT_DIR=".amazonq/prompts" ;;
+            "amp")       AGENT_DIR=".agents/commands" ;;
+            "shai")      AGENT_DIR=".shai/commands" ;;
+            "bob")       AGENT_DIR=".bob/commands" ;;
         esac
         
-        # Ensure dir exists for custom paths
-        mkdir -p "$(dirname "$AGENT_FILE")"
+        FULL_AGENT_DIR="${PKG_DIR}/${AGENT_DIR}"
+        mkdir -p "$FULL_AGENT_DIR"
         
-        sed "s/\[AGENT_NAME\]/${AGENT^^}/g" "$TEMPLATES_DIR/agent-file-template.md" > "$AGENT_FILE"
+        if [ "$AGENT_FORMAT" == "toml" ]; then
+            AGENT_TEMPLATE="$TEMPLATES_DIR/agent-file-template.toml"
+            AGENT_FILE="${FULL_AGENT_DIR}/gitkit.toml"
+        else
+            AGENT_TEMPLATE="$TEMPLATES_DIR/agent-file-template.md"
+            AGENT_FILE="${FULL_AGENT_DIR}/gitkit.md"
+        fi
+        
+        cp "$AGENT_TEMPLATE" "$AGENT_FILE"
+        # Mac/Linux compatible sed
+        sed -i "s/\[AGENT_NAME\]/${AGENT^^}/g" "$AGENT_FILE" 2>/dev/null || sed -i "" "s/\[AGENT_NAME\]/${AGENT^^}/g" "$AGENT_FILE"
         
         # 4. Zip it
         (cd "$DIST_DIR" && zip -r "${PKG_NAME}.zip" "${PKG_NAME}/")

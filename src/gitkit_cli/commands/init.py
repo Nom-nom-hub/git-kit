@@ -95,7 +95,7 @@ def main(
     if not agent:
         agent = Prompt.ask(
             "Select your AI Assistant", 
-            choices=["claude", "gemini", "copilot", "cursor", "qwen", "windsurf", "opencode", "codex", "kilocode", "auggie", "codebuddy", "roo", "q"],
+            choices=["claude", "gemini", "copilot", "cursor", "qwen", "opencode", "codex", "windsurf", "kilocode", "auggie", "roo", "codebuddy", "qoder", "q", "amp", "shai", "bob"],
             default="claude"
         )
         
@@ -148,22 +148,42 @@ def main(
                 shutil.copy2(src, dest)
                 console.print(f"  [green]✓[/green] Created {dest}")
 
-        # Install Agent File
-        agent_file_dest = path / f"{agent.upper()}.md"
-        # Special naming
-        if agent == "copilot":
-             agent_file_dest = github_dir / "goal-kit-guide.md"
-        elif agent == "vscode":
-             agent_file_dest = Path("git-kit-instructions.md")
+        # Mapping based on the spec
+        agent_mapping = {
+            "claude": { "dir": ".claude/commands", "format": "md" },
+            "gemini": { "dir": ".gemini/commands", "format": "toml" },
+            "copilot": { "dir": ".github/agents", "format": "md" },
+            "cursor": { "dir": ".cursor/commands", "format": "md" },
+            "qwen": { "dir": ".qwen/commands", "format": "toml" },
+            "opencode": { "dir": ".opencode/command", "format": "md" },
+            "codex": { "dir": ".codex/commands", "format": "md" },
+            "windsurf": { "dir": ".windsurf/workflows", "format": "md" },
+            "kilocode": { "dir": ".kilocode/rules", "format": "md" },
+            "auggie": { "dir": ".augment/rules", "format": "md" },
+            "roo": { "dir": ".roo/rules", "format": "md" },
+            "codebuddy": { "dir": ".codebuddy/commands", "format": "md" },
+            "qoder": { "dir": ".qoder/commands", "format": "md" },
+            "q": { "dir": ".amazonq/prompts", "format": "md" },
+            "amp": { "dir": ".agents/commands", "format": "md" },
+            "shai": { "dir": ".shai/commands", "format": "md" },
+            "bob": { "dir": ".bob/commands", "format": "md" }
+        }
 
-        agent_template = TEMPLATE_DEV_ROOT / "agent-file-template.md"
+        config = agent_mapping.get(agent, { "dir": f".{agent}/commands", "format": "md" })
+        agent_dir = path / config["dir"]
+        agent_format = config["format"]
+        agent_file_name = f"gitkit.{agent_format}"
+        agent_file_dest = agent_dir / agent_file_name
+
+        agent_template_name = f"agent-file-template.{agent_format}"
+        agent_template = TEMPLATE_DEV_ROOT / agent_template_name
         if not agent_template.exists():
-             agent_template = path / "git-kit" / "templates" / "agent-file-template.md"
+             agent_template = path / "git-kit" / "templates" / agent_template_name
              
         if agent_template.exists() and not agent_file_dest.exists():
+            agent_dir.mkdir(parents=True, exist_ok=True)
             content = agent_template.read_text(encoding="utf-8")
             content = content.replace("[AGENT_NAME]", agent.upper())
-            agent_file_dest.parent.mkdir(parents=True, exist_ok=True)
             agent_file_dest.write_text(content, encoding="utf-8")
             console.print(f"  [green]✓[/green] Created {agent_file_dest}")
             
