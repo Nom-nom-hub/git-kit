@@ -30,8 +30,8 @@ jobs:
     - name: Check Release
       id: check_release
       run: |
-        chmod +x .github/workflows/scripts/check-release-exists.sh
-        .github/workflows/scripts/check-release-exists.sh ${{ steps.get_version.outputs.new_version }}
+        chmod +x .github/workflows/scripts/check-release.sh
+        .github/workflows/scripts/check-release.sh ${{ steps.get_version.outputs.new_version }}
 
     - name: Build Package
       if: steps.check_release.outputs.exists == 'false'
